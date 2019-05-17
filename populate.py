@@ -1,7 +1,7 @@
 from random import randint
 from faker import Faker
-from models import ItemModel
-from db import db
+from app import ItemModel
+from app import db
 
 if __name__ == '__main__':
     fake = Faker()

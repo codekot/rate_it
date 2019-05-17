@@ -34,19 +34,27 @@ class ItemModel(db.Model):
     def find_all(cls):
         return cls.query.all()
 
+    @classmethod
+    def find_by_id(cls, item_id):
+        return cls.query.filter_by(id=item_id).first()
+
+
 class CategoryModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
     color = db.Column(db.Integer())
 
+
 class Item(Resource):
-    def get(self):
-        return {'item': 'some item'}
+    def get(self, item_id):
+        return ItemModel.find_by_id(item_id).json()
+
 
 class ItemList(Resource):
     def get(self):
         items = [item.json() for item in ItemModel.find_all()]
         return {'items': items}, 200
+
 
 class SearchItem(Resource):
     def get(self, name):
@@ -55,15 +63,14 @@ class SearchItem(Resource):
         for item in search:
             if name.lower() in item.name.lower():
                 result.append(item.json())
-        if result:
-            return {'items': result}
-        else:
-            return {'items': 'not found'}
+        return {'items': result}
+        
 
 
-api.add_resource(Item, '/item')
 api.add_resource(ItemList, '/items')
+api.add_resource(Item, '/items/<int:item_id>')
 api.add_resource(SearchItem, '/search/<string:name>')
+
 
 if __name__ == '__main__':
     db.init_app(app)
