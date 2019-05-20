@@ -1,6 +1,6 @@
 from random import randint
 from faker import Faker
-from app import ItemModel
+from app.models import ItemModel
 from app import db
 
 if __name__ == '__main__':

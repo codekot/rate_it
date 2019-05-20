@@ -2,8 +2,7 @@
 *.pyc
 *~
 __pycache__
-Dockerfile
-**/migrations
 **/__pycache__
 *.db
 
+config/config.py
