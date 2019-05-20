@@ -6,7 +6,7 @@ from app import db
 if __name__ == '__main__':
     fake = Faker()
     db.create_all()
-    for e in range(5):
+    for e in range(30):
         f_name = fake.sentence(nb_words=3)
         f_category = fake.word()
         f_description = fake.sentence()

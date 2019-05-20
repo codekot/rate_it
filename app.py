@@ -51,9 +51,37 @@ class Item(Resource):
 
 
 class ItemList(Resource):
+    
     def get(self):
-        items = [item.json() for item in ItemModel.find_all()]
-        return {'items': items}, 200
+        parser = reqparse.RequestParser()
+        parser.add_argument('offset', type=int, default=0)
+        parser.add_argument('limit', type=int, default=10)
+        parser.add_argument('name_substr', type=str)
+        parser.add_argument('name', type=str)
+        parser.add_argument('sort', type=str, default='-rate', 
+                            choices=['rate', '-rate', 'name', '-name'])
+        parser.add_argument('description', type=str)
+        args = parser.parse_args()
+        items = ItemModel.query
+        if args['name']:
+            items = items.filter_by(name=args['name'])
+        if args['name_substr']:
+            items = items.filter(ItemModel.name.contains(args['name_substr']))
+        if args['description']:
+            items = items.filter(ItemModel.name.contains(args['description']))
+        if args['sort']:
+            is_desc = args['sort'].startswith('-')
+            sort_field = args['sort'][1:] if is_desc else args['sort']
+            sort_field = ItemModel.__table__.columns[sort_field]
+            sort_field = sort_field.desc() if is_desc else sort_field.asc()
+            items = items.order_by(sort_field)
+        if args['offset']:
+            items = items.offset(args['offset'])
+        if args['limit']:
+            items = items.limit(args['limit'])
+        items = items.all()
+        result = [item.json() for item in items]
+        return {'items': result}, 200
 
 
 class SearchItem(Resource):
