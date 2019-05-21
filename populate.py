@@ -9,7 +9,7 @@ if __name__ == '__main__':
     for e in range(30):
         f_name = fake.sentence(nb_words=3)
         f_category = fake.word()
-        f_description = fake.sentence()
+        f_description = fake.sentence()[:-1]
         f_created_date = fake.date()
         f_last_edit_date = fake.date()
         f_image = fake.file_name(category='image')

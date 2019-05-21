@@ -17,7 +17,8 @@ class ItemList(Resource):
         parser.add_argument('name_substr', type=str)
         parser.add_argument('name', type=str)
         parser.add_argument('sort', type=str, default='-rate',
-                            choices=['rate', '-rate', 'name', '-name'])
+                            choices=['rate', '-rate', 'name', '-name'],
+                            help="Available sort parameters: rate, -rate, name, -name")
         parser.add_argument('description', type=str)
         args = parser.parse_args()
         items = ItemModel.query
