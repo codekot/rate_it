@@ -2,3 +2,4 @@ Flask
 Flask-RESTful
 Flask-SQLAlchemy
 faker
+google-cloud-storage

@@ -6,3 +6,4 @@ __pycache__
 *.db
 
 config/config.py
+config/gapp_credentials.json

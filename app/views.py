@@ -1,7 +1,10 @@
 from flask_restful import Resource, reqparse
+from werkzeug.datastructures import FileStorage
+from google.cloud import storage
 
 from app.models import ItemModel
 from . import db
+from config import CLOUD_STORAGE_BUCKET
 
 
 class Item(Resource):
@@ -71,3 +74,36 @@ class SearchItem(Resource):
             if name.lower() in item.name.lower():
                 result.append(item.json())
         return {'items': result}
+
+class Images(Resource):
+    def save_to_google_cloud(self, image):
+        # Create a Cloud Storage client.
+        gcs = storage.Client()
+
+        # Get the bucket that the file will be uploaded to.
+        bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+
+        # Create a new blob and upload the file's content.
+        print(image.filename)
+        blob = bucket.blob(image.filename)
+
+        blob.upload_from_string(
+            image.read(),
+            content_type=image.content_type
+        )
+
+        # The public URL can be used to directly access the uploaded file via HTTP.
+        return blob.public_url
+
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('item_image', type=FileStorage, location='files')
+        parser.add_argument('item_name', type=str, help="Name of the item (required)", required=True)
+        args = parser.parse_args()
+        item_image = args['item_image']
+        if not item_image:
+            return {'message': 'No file uploaded'}, 400
+        image_url = self.save_to_google_cloud(item_image)
+        print(image_url)
+        #item_image.save("new_item.jpg")
