@@ -1,1 +1,1 @@
-from config.config import DEBUG, DATABASE_CONNECTION
+from config.config import DEBUG, HOST, PORT, DATABASE_CONNECTION, CLOUD_STORAGE_BUCKET

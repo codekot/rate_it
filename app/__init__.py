@@ -1,8 +1,13 @@
 from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+from sys import exit
 
-from config import DATABASE_CONNECTION
+try:
+    from config import DATABASE_CONNECTION
+except ImportError:
+    print("Не задана переменная DATABASE_CONNECTION")
+    exit(1)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_CONNECTION
