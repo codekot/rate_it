@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 
 from app.models import ItemModel
+from . import db
 
 
 class Item(Resource):
@@ -41,6 +42,25 @@ class ItemList(Resource):
         items = items.all()
         result = [item.json() for item in items]
         return {'items': result}, 200
+
+    def post(self):
+        #{"name": "First", "description": "main item", "image": "some.jpg", "rate": 200}
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', type=str, help="Name of the item (required)", required=True)
+        parser.add_argument('description', type=str, help="Description of the item")
+        parser.add_argument('image', type=str)
+        args = parser.parse_args()
+
+        if ItemModel.find_by_name(args['name']):
+            return {'message': "An item with name '{}' already exists.".format(args['name'])}, 400
+
+        item = ItemModel(**args)
+        try:
+            db.session.add(item)
+            db.session.commit()
+        except:
+            return {'message': 'Error writing in database'}, 500
+        return item.json(), 201
 
 
 class SearchItem(Resource):
