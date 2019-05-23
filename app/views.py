@@ -1,10 +1,13 @@
+import os
+
 from flask_restful import Resource, reqparse
-from werkzeug.datastructures import FileStorage
 from google.cloud import storage
+from werkzeug.datastructures import FileStorage
 
 from app.models import ItemModel
 from . import db
-from config import CLOUD_STORAGE_BUCKET
+
+CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
 
 
 class Item(Resource):
