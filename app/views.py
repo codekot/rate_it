@@ -1,18 +1,49 @@
+import os
+
+from dotenv import load_dotenv
 from flask_restful import Resource, reqparse
-from werkzeug.datastructures import FileStorage
 from google.cloud import storage
+from werkzeug.datastructures import FileStorage
 
 from app.models import ItemModel
 from . import db
-from config import CLOUD_STORAGE_BUCKET
+
+load_dotenv()
+CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
 
 
 class Item(Resource):
     def get(self, item_id):
-        return ItemModel.find_by_id(item_id).json()
+        item = ItemModel.find_by_id(item_id)
+        if item:
+            return item.json()
+        else:
+            return {"message": "Item not found"}, 404
 
 
 class ItemList(Resource):
+
+    def save_to_google_cloud(self, image):
+        # Create a Cloud Storage client.
+        gcs = storage.Client()
+
+        # Get the bucket that the file will be uploaded to.
+        bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+
+        # Change filename to unique
+        filename = uuid.uuid4().hex
+        image.filename = filename
+
+        # Create a new blob and upload the file's content.
+        blob = bucket.blob(image.filename)
+
+        blob.upload_from_string(
+            image.read(),
+            content_type=image.content_type
+        )
+
+        # The public URL can be used to directly access the uploaded file via HTTP.
+        return blob.public_url
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -47,12 +78,16 @@ class ItemList(Resource):
         return {'items': result}, 200
 
     def post(self):
-        #{"name": "First", "description": "main item", "image": "some.jpg", "rate": 200}
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str, help="Name of the item (required)", required=True)
         parser.add_argument('description', type=str, help="Description of the item")
-        parser.add_argument('image', type=str)
+        parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
+
+        image = args['image']
+        if image:
+            image_url = self.save_to_google_cloud(item_image)
+            args["image"]=image_url
 
         if ItemModel.find_by_name(args['name']):
             return {'message': "An item with name '{}' already exists.".format(args['name'])}, 400
@@ -63,7 +98,7 @@ class ItemList(Resource):
             db.session.commit()
         except:
             return {'message': 'Error writing in database'}, 500
-        return item.json(), 201
+        return item.json_response(), 201
 
 
 class SearchItem(Resource):
@@ -74,36 +109,3 @@ class SearchItem(Resource):
             if name.lower() in item.name.lower():
                 result.append(item.json())
         return {'items': result}
-
-class Images(Resource):
-    def save_to_google_cloud(self, image):
-        # Create a Cloud Storage client.
-        gcs = storage.Client()
-
-        # Get the bucket that the file will be uploaded to.
-        bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
-
-        # Create a new blob and upload the file's content.
-        print(image.filename)
-        blob = bucket.blob(image.filename)
-
-        blob.upload_from_string(
-            image.read(),
-            content_type=image.content_type
-        )
-
-        # The public URL can be used to directly access the uploaded file via HTTP.
-        return blob.public_url
-
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('item_image', type=FileStorage, location='files')
-        parser.add_argument('item_name', type=str, help="Name of the item (required)", required=True)
-        args = parser.parse_args()
-        item_image = args['item_image']
-        if not item_image:
-            return {'message': 'No file uploaded'}, 400
-        image_url = self.save_to_google_cloud(item_image)
-        print(image_url)
-        #item_image.save("new_item.jpg")
