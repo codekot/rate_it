@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from flask_restful import Resource, reqparse
 from google.cloud import storage
 from werkzeug.datastructures import FileStorage
@@ -7,7 +8,8 @@ from werkzeug.datastructures import FileStorage
 from app.models import ItemModel
 from . import db
 
-CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
+load_dotenv()
+CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
 
 
 class Item(Resource):
