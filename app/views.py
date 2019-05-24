@@ -1,4 +1,5 @@
 import os
+from uuid import uuid4
 
 from dotenv import load_dotenv
 from flask_restful import Resource, reqparse
@@ -31,7 +32,7 @@ class ItemList(Resource):
         bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
 
         # Change filename to unique
-        filename = uuid.uuid4().hex
+        filename = uuid4().hex
         image.filename = filename
 
         # Create a new blob and upload the file's content.
