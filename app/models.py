@@ -24,6 +24,12 @@ class ItemModel(db.Model):
         'rate': self.rate
         }
 
+    def json_response(self):
+        return {
+        'id': self.id,
+        'image': self.image,
+        }
+
     def __repr__(self):
         return "ItemModel {}".format(self.name)
 

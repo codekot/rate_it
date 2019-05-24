@@ -4,7 +4,9 @@
 __pycache__
 **/__pycache__
 *.db
+**/venv
 
 *.env
 config/config.py
 config/gapp_credentials.json
+app/requests
