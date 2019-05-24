@@ -85,9 +85,8 @@ class ItemList(Resource):
         parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
 
-        image = args['image']
-        if image:
-            image_url = self.save_to_google_cloud(item_image)
+        if args['image']:
+            image_url = self.save_to_google_cloud(args['image'])
             args["image"]=image_url
 
         if ItemModel.find_by_name(args['name']):
