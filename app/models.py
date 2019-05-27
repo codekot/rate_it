@@ -28,6 +28,7 @@ class ItemModel(db.Model):
         return {
         'id': self.id,
         'image': self.image,
+        'rate': self.rate,
         }
 
     def __repr__(self):
