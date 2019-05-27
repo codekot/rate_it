@@ -94,11 +94,35 @@ class ItemList(Resource):
 
         item = ItemModel(**args)
         try:
-            db.session.add(item)
-            db.session.commit()
+            item.save_to_db()
         except:
             return {'message': 'Error writing in database'}, 500
         return item.json_response(), 201
+
+    def put(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('id', type=str, required=True)
+        parser.add_argument('name', type=str, help="Name of the item (required)", required=True)
+        parser.add_argument('description', type=str, help="Description of the item")
+        parser.add_argument('image', type=FileStorage, location='files')
+        parser.add_argument('rate', type=bool)
+        args = parser.parse_args()
+
+        if args['image']:
+            image_url = self.save_to_google_cloud(args['image'])
+            args["image"]=image_url
+
+        if ItemModel.find_by_name(args['name']):
+            pass
+        else:
+            item = ItemModel(**args)
+            try:
+                pass
+
+
+        
+
+
 
 
 class SearchItem(Resource):

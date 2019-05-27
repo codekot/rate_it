@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 from app import app
-from config import DEBUG, HOST, PORT
+try:
+    from config import DEBUG, HOST, PORT
+except:
+    DEBUG = None
+    HOST = None
+    DEBUG = None
 
 
 if __name__ == '__main__':

@@ -30,6 +30,16 @@ class ItemModel(db.Model):
         'image': self.image,
         }
 
+    def update_date(self):
+        self.last_edit_date = datetime.utcnow()
+
+    def update_rate(self):
+        self.last_edit_date += 1
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
     def __repr__(self):
         return "ItemModel {}".format(self.name)
 
