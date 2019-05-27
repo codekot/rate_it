@@ -4,7 +4,7 @@ from app import db
 
 class ItemModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(), nullable=False, unique=True)
     category = db.Column(db.String(), default = "movie")
     description = db.Column(db.Text())
     created_date = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -35,6 +35,7 @@ class ItemModel(db.Model):
 
     def update_rate(self):
         self.last_edit_date += 1
+        self.update_date()
 
     def save_to_db(self):
         db.session.add(self)

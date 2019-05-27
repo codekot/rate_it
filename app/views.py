@@ -89,10 +89,15 @@ class ItemList(Resource):
             image_url = self.save_to_google_cloud(args['image'])
             args["image"]=image_url
 
-        if ItemModel.find_by_name(args['name']):
-            return {'message': "An item with name '{}' already exists.".format(args['name'])}, 400
+        # if ItemModel.find_by_name(args['name']):
+        #     return {'message': "An item with name '{}' already exists.".format(args['name'])}, 400
 
-        item = ItemModel(**args)
+        item = ItemModel.find_by_name(args['name'])
+        if item:
+            item.update_rate()
+        else:
+            item = ItemModel(**args)
+
         try:
             item.save_to_db()
         except:
@@ -101,11 +106,11 @@ class ItemList(Resource):
 
     def put(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('id', type=str, required=True)
-        parser.add_argument('name', type=str, help="Name of the item (required)", required=True)
-        parser.add_argument('description', type=str, help="Description of the item")
+        parser.add_argument('id', type=str, required=True, location='form')
+        parser.add_argument('name', type=str, help="Name of the item (required)", required=True, location='form')
+        parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('image', type=FileStorage, location='files')
-        parser.add_argument('rate', type=bool)
+        parser.add_argument('rate', type=int, location='form')
         args = parser.parse_args()
 
         if args['image']:
