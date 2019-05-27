@@ -89,10 +89,11 @@ class ItemList(Resource):
             image_url = self.save_to_google_cloud(args['image'])
             args["image"]=image_url
 
-        if ItemModel.find_by_name(args['name']):
-            return {'message': "An item with name '{}' already exists.".format(args['name'])}, 400
-
-        item = ItemModel(**args)
+        item = ItemModel.find_by_name(args['name'])
+        if item:
+            item.rate += 1
+        else:
+            item = ItemModel(**args)
         try:
             db.session.add(item)
             db.session.commit()
