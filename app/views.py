@@ -24,12 +24,7 @@ class Item(Resource):
     def delete(self, item_id):
         item = ItemModel.find_by_id(item_id)
         if item:
-            try:
-                db.session.delete(item)
-                db.session.commit()
-            except:
-                return {'message': 'Error writing in database'}, 500
-            return {}, 200
+            item.delete()
         else:
             return {"message": "Item not found"}, 404
 
