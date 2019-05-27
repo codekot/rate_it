@@ -16,17 +16,38 @@ CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
 class Item(Resource):
     def get(self, item_id):
         item = ItemModel.find_by_id(item_id)
-        if item:
-            return item.json()
-        else:
+        if not item:
             return {"message": "Item not found"}, 404
+
+        return item.json()
+
+    def put(self, item_id):
+        item = ItemModel.find_by_id(item_id)
+        if not item:
+            return {"message": "Item not found"}, 404
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', type=str, help="Name of the item (required)", location='form')
+        parser.add_argument('description', type=str, help="Description of the item", location='form')
+        parser.add_argument('rate', type=int, location='form')
+        parser.add_argument('image', type=FileStorage, location='files')
+        args = parser.parse_args()
+        args = {key: value for key, value in args.items() if value}
+
+        if args.get('image'):
+            image_url = self.save_to_google_cloud(args['image'])
+            args["image"] = image_url
+
+        item.update_fields(save=True, **args)
+        return {}, 200
 
     def delete(self, item_id):
         item = ItemModel.find_by_id(item_id)
-        if item:
-            item.delete()
-        else:
+        if not item:
             return {"message": "Item not found"}, 404
+
+        item.delete()
+        return {}, 200
 
 
 class ItemList(Resource):
@@ -98,40 +119,15 @@ class ItemList(Resource):
 
         item = ItemModel.find_by_name(args['name'])
         if item:
-            item.rate += 1
+            item.update_fields(rate=item.rate+1, **args)
         else:
             item = ItemModel(**args)
 
         try:
-            item.save_to_db()
+            item.save()
         except:
             return {'message': 'Error writing in database'}, 500
         return item.json_response(), 201
-
-    def put(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('id', type=str, required=True, location='form')
-        parser.add_argument('name', type=str, help="Name of the item (required)", required=True, location='form')
-        parser.add_argument('description', type=str, help="Description of the item", location='form')
-        parser.add_argument('image', type=FileStorage, location='files')
-        parser.add_argument('rate', type=int, location='form')
-        args = parser.parse_args()
-
-        if args['image']:
-            image_url = self.save_to_google_cloud(args['image'])
-            args["image"]=image_url
-
-        if ItemModel.find_by_name(args['name']):
-            pass
-        else:
-            item = ItemModel(**args)
-            try:
-                pass
-
-
-        
-
-
 
 
 class SearchItem(Resource):

@@ -31,16 +31,28 @@ class ItemModel(db.Model):
         'rate': self.rate,
         }
 
-    def update_date(self):
+    def save(self, commit=True):
+        db.session.add(self)
+        if commit:
+            db.session.commit()
+
+    def delete(self, commit=True):
+        db.session.delete(self)
+        if commit:
+            db.session.commit()
+
+    def update_last_edit_date(self):
         self.last_edit_date = datetime.utcnow()
 
-    def update_rate(self):
-        self.last_edit_date += 1
-        self.update_date()
-
-    def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+    def update_fields(self, save=False, **fields):
+        for field, value in fields.items():
+            # There's just one and only category
+            if field == 'category': continue
+            if hasattr(self, field):
+                setattr(self, field, value)
+        self.update_last_edit_date()
+        if save:
+            self.save()
 
     def __repr__(self):
         return "ItemModel {}".format(self.name)
