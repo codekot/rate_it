@@ -6,7 +6,9 @@ from flask_restful import Resource, reqparse
 from google.cloud import storage
 from werkzeug.datastructures import FileStorage
 
-from app.models import ItemModel
+from flask_jwt_extended import create_access_token
+
+from app.models import ItemModel, UserModel
 from . import db
 
 load_dotenv()
@@ -31,8 +33,12 @@ class Item(Resource):
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('rate', type=int, location='form')
         parser.add_argument('image', type=FileStorage, location='files')
+        parser.add_argument('delete_image', type=bool, location='form')
         args = parser.parse_args()
         args = {key: value for key, value in args.items() if value}
+
+        if args.pop('delete_image', None):
+            item.delete_image()
 
         if args.get('image'):
             image_url = self.save_to_google_cloud(args['image'])
@@ -138,3 +144,19 @@ class SearchItem(Resource):
             if name.lower() in item.name.lower():
                 result.append(item.json())
         return {'items': result}
+
+class UserLogin(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', type=str, required=True, help="Username field (required)")
+        parser.add_argument('password', type=str, required=True, help="Password field (required)")
+        args = parser.parse_args()
+
+        user = UserModel.find_by_username(args["username"])
+
+        if user and user.check_password(args["password"]):
+            access_token = create_access_token(identity=user.id, fresh=True)
+            return {'access_token': access_token}, 200
+
+        return {"message": "Invalid password or username"}
+
