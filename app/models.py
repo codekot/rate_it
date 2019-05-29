@@ -1,5 +1,6 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import validates
 
 from app import db
 
@@ -13,6 +14,16 @@ class ItemModel(db.Model):
     last_edit_date = db.Column(db.DateTime(), default=datetime.utcnow)
     image = db.Column(db.String())
     rate = db.Column(db.Integer, default=1)
+
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise AssertionError("Not name")
+        if name == '':
+            raise AssertionError("Empty string")
+        return name
+
+
 
     def json(self):
         return {
@@ -29,6 +40,7 @@ class ItemModel(db.Model):
     def json_response(self):
         return {
         'id': self.id,
+        'created_date': self.created_date.strftime("%Y-%m-%d %H:%M:%S"),
         'image': self.image,
         'rate': self.rate,
         }

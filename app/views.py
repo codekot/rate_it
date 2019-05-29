@@ -172,6 +172,7 @@ class UserRegister(Resource):
 
         return {"message": "User created successfully"}, 201
 
+
 class UserLogin(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -186,4 +187,3 @@ class UserLogin(Resource):
             return {'access_token': access_token}, 200
 
         return {"message": "Invalid password or username"}
-
