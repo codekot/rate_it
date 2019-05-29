@@ -5,4 +5,4 @@ Flask-SQLAlchemy==2.4.0
 faker==1.0.7
 google-cloud-storage==1.16.0
 python-dotenv==0.10.2
-flask_jwt_extended
+flask_jwt_extended==3.18.2
