@@ -7,10 +7,17 @@ from google.cloud import storage
 from werkzeug.datastructures import FileStorage
 
 from app.models import ItemModel
-from . import db
 
 load_dotenv()
 CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
+
+
+def non_empty_string(string):
+    if not isinstance(string, str):
+        raise ValueError("Must be string")
+    if not string:
+        raise ValueError("Must be non-empty string")
+    return string
 
 
 class Item(Resource):
@@ -27,7 +34,8 @@ class Item(Resource):
             return {"message": "Item not found"}, 404
 
         parser = reqparse.RequestParser()
-        parser.add_argument('name', type=str, help="Name of the item (required)", location='form')
+        parser.add_argument('name', type=non_empty_string, location='form',
+                            help="Name of the item (must be a non-empty string)")
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('rate', type=int, location='form')
         parser.add_argument('image', type=FileStorage, location='files')
@@ -108,7 +116,8 @@ class ItemList(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('name', type=str, help="Name of the item (required)", required=True, location='form')
+        parser.add_argument('name', type=non_empty_string, required=True, location='form',
+                            help="Name of the item (required, (must be a non-empty string))")
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
