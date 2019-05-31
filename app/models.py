@@ -15,12 +15,6 @@ class ItemModel(db.Model):
     image = db.Column(db.String())
     rate = db.Column(db.Integer, default=1)
 
-    @validates('name')
-    def validate_name(self, key, name):
-        if not name:
-            raise AssertionError("Not name")
-        return name
-
     def json(self):
         return {
         'id': self.id,
