@@ -143,7 +143,7 @@ class ItemList(Resource):
             item.save()
         except:
             return {'message': 'Error writing in database'}, 500
-        return item.json_response(), 201
+        return item.json(), 201
 
 
 class SearchItem(Resource):

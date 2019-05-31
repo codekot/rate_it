@@ -19,11 +19,7 @@ class ItemModel(db.Model):
     def validate_name(self, key, name):
         if not name:
             raise AssertionError("Not name")
-        if name == '':
-            raise AssertionError("Empty string")
         return name
-
-
 
     def json(self):
         return {
@@ -110,6 +106,18 @@ class UserModel(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def __repr__(self):
+        return "UserModel id={}, username={}".format(self.id, self.username)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
     @classmethod
     def find_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filer_by(id=id)
