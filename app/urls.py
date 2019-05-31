@@ -1,7 +1,9 @@
-from app.views import ItemList, SearchItem, Item
+from app.views import ItemList, SearchItem, Item, UserLogin, UserRegister
 
 urls = {
-    '/items/': ItemList,
-    '/items/<int:item_id>/': Item,
-    '/search/<string:name>': SearchItem,
+    '/api/items/': ItemList,
+    '/api/items/<int:item_id>/': Item,
+    '/api/search/<string:name>': SearchItem,
+    '/api/login/': UserLogin,
+    '/api/register/': UserRegister,
 }

@@ -6,11 +6,21 @@ from flask_restful import Resource, reqparse
 from google.cloud import storage
 from werkzeug.datastructures import FileStorage
 
-from app.models import ItemModel
+from flask_jwt_extended import create_access_token
+
+from app.models import ItemModel, UserModel
 from . import db
 
 load_dotenv()
 CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
+
+
+def non_empty_string(string):
+    if not isinstance(string, str):
+        raise ValueError("Must be string")
+    if not string:
+        raise ValueError("Must be non-empty string")
+    return string
 
 
 class Item(Resource):
@@ -27,12 +37,17 @@ class Item(Resource):
             return {"message": "Item not found"}, 404
 
         parser = reqparse.RequestParser()
-        parser.add_argument('name', type=str, help="Name of the item (required)", location='form')
+        parser.add_argument('name', type=non_empty_string, location='form',
+                            help="Name of the item (must be a non-empty string)")
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('rate', type=int, location='form')
         parser.add_argument('image', type=FileStorage, location='files')
+        parser.add_argument('delete_image', type=bool, location='form')
         args = parser.parse_args()
         args = {key: value for key, value in args.items() if value}
+
+        if args.pop('delete_image', None):
+            item.delete_image()
 
         if args.get('image'):
             image_url = self.save_to_google_cloud(args['image'])
@@ -108,7 +123,8 @@ class ItemList(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('name', type=str, help="Name of the item (required)", required=True, location='form')
+        parser.add_argument('name', type=non_empty_string, required=True, location='form',
+                            help="Name of the item (required, (must be a non-empty string))")
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
@@ -127,7 +143,7 @@ class ItemList(Resource):
             item.save()
         except:
             return {'message': 'Error writing in database'}, 500
-        return item.json_response(), 201
+        return item.json(), 201
 
 
 class SearchItem(Resource):
@@ -138,3 +154,36 @@ class SearchItem(Resource):
             if name.lower() in item.name.lower():
                 result.append(item.json())
         return {'items': result}
+
+
+class UserRegister(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', type=str, required=True, help="Username field (required)")
+        parser.add_argument('password', type=str, required=True, help="Password field (required)")
+        args = parser.parse_args()
+
+        if UserModel.find_by_username(args['username']):
+            return {"message": "A user with that username already exist"}, 400
+
+        user = UserModel(username=args['username'])
+        user.set_password(args['password'])
+        user.save_to_db()
+
+        return {"message": "User created successfully"}, 201
+
+
+class UserLogin(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', type=str, required=True, help="Username field (required)")
+        parser.add_argument('password', type=str, required=True, help="Password field (required)")
+        args = parser.parse_args()
+
+        user = UserModel.find_by_username(args["username"])
+
+        if user and user.check_password(args["password"]):
+            access_token = create_access_token(identity=user.id, fresh=True)
+            return {'access_token': access_token}, 200
+
+        return {"message": "Invalid password or username"}

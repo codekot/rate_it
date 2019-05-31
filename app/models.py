@@ -1,4 +1,7 @@
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import validates
+
 from app import db
 
 
@@ -11,6 +14,12 @@ class ItemModel(db.Model):
     last_edit_date = db.Column(db.DateTime(), default=datetime.utcnow)
     image = db.Column(db.String())
     rate = db.Column(db.Integer, default=1)
+
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise AssertionError("Not name")
+        return name
 
     def json(self):
         return {
@@ -27,6 +36,7 @@ class ItemModel(db.Model):
     def json_response(self):
         return {
         'id': self.id,
+        'created_date': self.created_date.strftime("%Y-%m-%d %H:%M:%S"),
         'image': self.image,
         'rate': self.rate,
         }
@@ -40,6 +50,10 @@ class ItemModel(db.Model):
         db.session.delete(self)
         if commit:
             db.session.commit()
+
+    def delete_image(self):
+        self.image = None
+        # надо искать в bucket картинку и удалять
 
     def update_last_edit_date(self):
         self.last_edit_date = datetime.utcnow()
@@ -75,3 +89,35 @@ class CategoryModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
     color = db.Column(db.Integer())
+
+
+class UserModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(32), nullable=False)
+    password_hash = db.Column(db.String(128))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def __repr__(self):
+        return "UserModel id={}, username={}".format(self.id, self.username)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+    @classmethod
+    def find_by_username(cls, username):
+        return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def find_by_id(cls, id):
+        return cls.query.filer_by(id=id)
