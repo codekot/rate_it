@@ -124,7 +124,7 @@ class ItemList(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=non_empty_string, required=True, location='form',
-                            help="Name of the item (required, (must be a non-empty string))")
+                            help="Name of the item is required")
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
