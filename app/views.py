@@ -44,7 +44,6 @@ class Item(Resource):
         parser.add_argument('image', type=FileStorage, location='files')
         parser.add_argument('delete_image', type=bool, location='form')
         args = parser.parse_args()
-        args = {key: value for key, value in args.items() if value}
 
         if args.pop('delete_image', None):
             item.delete_image()
@@ -54,7 +53,7 @@ class Item(Resource):
             args["image"] = image_url
 
         item.update_fields(save=True, **args)
-        return {}, 200
+        return item.json(), 200
 
     def delete(self, item_id):
         item = ItemModel.find_by_id(item_id)
@@ -159,8 +158,8 @@ class SearchItem(Resource):
 class UserRegister(Resource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True, help="Username field (required)")
-        parser.add_argument('password', type=str, required=True, help="Password field (required)")
+        parser.add_argument('username', type=non_empty_string, required=True, help="Username field is required")
+        parser.add_argument('password', type=str, required=True, help="Password field is required")
         args = parser.parse_args()
 
         if UserModel.find_by_username(args['username']):
@@ -176,8 +175,8 @@ class UserRegister(Resource):
 class UserLogin(Resource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True, help="Username field (required)")
-        parser.add_argument('password', type=str, required=True, help="Password field (required)")
+        parser.add_argument('username', type=str, required=True, help="Username field is required")
+        parser.add_argument('password', type=str, required=True, help="Password field is required")
         args = parser.parse_args()
 
         user = UserModel.find_by_username(args["username"])
