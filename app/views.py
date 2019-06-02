@@ -44,6 +44,7 @@ class Item(Resource):
         parser.add_argument('image', type=FileStorage, location='files')
         parser.add_argument('delete_image', type=bool, location='form')
         args = parser.parse_args()
+        args = {key: value for key, value in args.items() if value or key=='description'}
 
         if args.pop('delete_image', None):
             item.delete_image()
@@ -127,7 +128,6 @@ class ItemList(Resource):
         parser.add_argument('description', type=str, help="Description of the item", location='form')
         parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
-        args = {key: value for key, value in args.items() if value or key=='description'}
 
         if args['image']:
             image_url = self.save_to_google_cloud(args['image'])
