@@ -2,14 +2,12 @@ import os
 from uuid import uuid4
 
 from dotenv import load_dotenv
+from flask_jwt_extended import create_access_token
 from flask_restful import Resource, reqparse
 from google.cloud import storage
 from werkzeug.datastructures import FileStorage
 
-from flask_jwt_extended import create_access_token
-
 from app.models import ItemModel, UserModel
-from . import db
 
 load_dotenv()
 CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
@@ -117,7 +115,6 @@ class ItemList(Resource):
             items = items.offset(args['offset'])
         if args['limit']:
             items = items.limit(args['limit'])
-        items = items.all()
         result = [item.json() for item in items]
         return {'items': result}, 200
 
