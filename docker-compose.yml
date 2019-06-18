@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+
+### App Container ######################################
+
+    rate_app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - "./:/usr/src/app/"
+        ports:
+            - "8080:5000"
