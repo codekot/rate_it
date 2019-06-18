@@ -8,5 +8,5 @@ BASE_DIRECTORY = dirname(dirname(abspath(__file__)))
 
 class Config():
     SECRET_KEY = os.getenv('SECRET_KEY') or 'some-special-secret-key'
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or f"sqlite:///{BASE_DIRECTORY}/data.db"
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or "sqlite:///{}/data.db".format(BASE_DIRECTORY)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
