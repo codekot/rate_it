@@ -1,14 +1,17 @@
+import logging
 import os
 from uuid import uuid4
 
 from dotenv import load_dotenv
 from flask_jwt_extended import create_access_token
 from flask_restful import Resource, reqparse
+from google.auth.exceptions import DefaultCredentialsError
 from google.cloud import storage
 from werkzeug.datastructures import FileStorage
 
 from app.models import ItemModel, UserModel
 
+logger = logging.getLogger()
 load_dotenv()
 CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
 
@@ -67,7 +70,12 @@ class ItemList(Resource):
 
     def save_to_google_cloud(self, image):
         # Create a Cloud Storage client.
-        gcs = storage.Client()
+        try:
+            gcs = storage.Client()
+        except DefaultCredentialsError as exc:
+            logger.warning(f"{str(exc)} Image will not be saved.")
+            return None
+
 
         # Get the bucket that the file will be uploaded to.
         bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
