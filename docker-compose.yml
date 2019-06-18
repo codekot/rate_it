@@ -5,10 +5,10 @@ services:
 ### App Container ######################################
 
     rate_app:
+        container_name: rate_app
         build:
             context: .
-            dockerfile: Dockerfile
         volumes:
-            - "./:/usr/src/app/"
+            - "./data.db:/usr/src/app/data.db"
         ports:
             - "8080:5000"
