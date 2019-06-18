@@ -16,24 +16,29 @@ class ItemModel(db.Model):
     rate = db.Column(db.Integer, default=1)
 
     def json(self):
-        return {
-        'id': self.id,
-        'name': self.name,
-        'category': self.category,
-        'description': self.description,
-        'created_date': self.created_date.strftime("%Y-%m-%d %H:%M:%S"),
-        'last_edit_date': self.last_edit_date.strftime("%Y-%m-%d %H:%M:%S"),
-        'image': self.image,
-        'rate': self.rate
+        json = {
+            'id': self.id,
+            'name': self.name,
+            'category': self.category,
+            'created_date': self.created_date.strftime("%Y-%m-%d %H:%M:%S"),
+            'last_edit_date': self.last_edit_date.strftime("%Y-%m-%d %H:%M:%S"),
+            'rate': self.rate
         }
+        if self.description:
+            json['description'] = self.description
+        if self.image:
+            json['image'] = self.image
+        return json
 
     def json_response(self):
-        return {
-        'id': self.id,
-        'created_date': self.created_date.strftime("%Y-%m-%d %H:%M:%S"),
-        'image': self.image,
-        'rate': self.rate,
+        json = {
+            'id': self.id,
+            'created_date': self.created_date.strftime("%Y-%m-%d %H:%M:%S"),
+            'rate': self.rate,
         }
+        if self.image:
+            json['image'] = self.image
+        return json
 
     def save(self, commit=True):
         db.session.add(self)
