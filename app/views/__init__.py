@@ -1,19 +1,9 @@
-import logging
-import os
-from uuid import uuid4
-
-from dotenv import load_dotenv
 from flask_jwt_extended import create_access_token
 from flask_restful import Resource, reqparse
-from google.auth.exceptions import DefaultCredentialsError
-from google.cloud import storage
 from werkzeug.datastructures import FileStorage
 
+from app.gc_bucket import GCBucket
 from app.models import ItemModel, UserModel
-
-logger = logging.getLogger()
-load_dotenv()
-CLOUD_STORAGE_BUCKET = os.getenv('CLOUD_STORAGE_BUCKET')
 
 
 def non_empty_string(string):
@@ -51,7 +41,7 @@ class Item(Resource):
             item.delete_image()
 
         if args.get('image'):
-            image_url = self.save_to_google_cloud(args['image'])
+            image_url = GCBucket.save_to_google_cloud(args['image'])
             args["image"] = image_url
 
         item.update_fields(save=True, **args)
@@ -67,33 +57,6 @@ class Item(Resource):
 
 
 class ItemList(Resource):
-
-    def save_to_google_cloud(self, image):
-        # Create a Cloud Storage client.
-        try:
-            gcs = storage.Client()
-        except DefaultCredentialsError as exc:
-            logger.warning(f"{str(exc)} Image will not be saved.")
-            return None
-
-
-        # Get the bucket that the file will be uploaded to.
-        bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
-
-        # Change filename to unique
-        filename = uuid4().hex
-        image.filename = filename
-
-        # Create a new blob and upload the file's content.
-        blob = bucket.blob(image.filename)
-
-        blob.upload_from_string(
-            image.read(),
-            content_type=image.content_type
-        )
-
-        # The public URL can be used to directly access the uploaded file via HTTP.
-        return blob.public_url
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -135,7 +98,7 @@ class ItemList(Resource):
         args = parser.parse_args()
 
         if args['image']:
-            image_url = self.save_to_google_cloud(args['image'])
+            image_url = GCBucket.save_to_google_cloud(args['image'])
             args["image"]=image_url
 
         item = ItemModel.find_by_name(args['name'])
