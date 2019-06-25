@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 from config import Config
 
@@ -10,6 +11,7 @@ cors = CORS()
 jwt = JWTManager()
 db = SQLAlchemy()
 api = Api()
+migrate = Migrate()
 
 # Init api methods
 from app.urls import urls
@@ -28,5 +30,6 @@ def create_app(config_class=Config):
     db.init_app(app)
     jwt.init_app(app)
     api.init_app(app)
+    migrate.init_app(app, db)
 
     return app
