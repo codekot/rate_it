@@ -19,10 +19,10 @@ class GCBucket():
         try:
             gcs = storage.Client()
         except DefaultCredentialsError as exc:
-            logger.warning(f"{str(exc)} Image will not be saved.")
+            logger.warning("{} Image will not be saved.".format(str(exc)))
             return None
 
-        # Get the bucket that the file will be uploaded to.
+        # Get the bucket that the file will uploaded to.
         bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
 
         # Change filename to unique
