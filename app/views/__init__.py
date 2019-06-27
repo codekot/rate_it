@@ -153,5 +153,7 @@ class UserLogin(Resource):
         if user and user.check_password(args["password"]):
             access_token = create_access_token(identity=user.id, fresh=True)
             return {'access_token': access_token}, 200
+        elif user:
+            return {"message": "Invalid password"}, 400
 
-        return {"message": "Invalid password or username"}, 400
+        return {"message": "Invalid username"}, 400
