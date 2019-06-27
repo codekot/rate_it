@@ -133,7 +133,7 @@ class UserRegister(Resource):
         args = parser.parse_args()
 
         if UserModel.find_by_username(args['username']):
-            return {"message": "A user with that username already exist"}, 400
+            return {"error": {"username": "A user with that username already exist"}}, 400
 
         user = UserModel(username=args['username'])
         user.set_password(args['password'])
@@ -155,6 +155,6 @@ class UserLogin(Resource):
             access_token = create_access_token(identity=user.id, fresh=True)
             return {'access_token': access_token}, 200
         elif user:
-            return {"message": "Invalid password"}, 400
+            return {"error": {"password": "Invalid password"}}, 400
 
-        return {"message": "Invalid username"}, 400
+        return {"error": {"username": "Invalid username"}}, 400
