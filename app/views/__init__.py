@@ -129,6 +129,7 @@ class UserRegister(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=non_empty_string, required=True, help="Username field is required")
         parser.add_argument('password', type=str, required=True, help="Password field is required")
+        parser.add_argument('email', type=str, help="Email is used for password reset only")
         args = parser.parse_args()
 
         if UserModel.find_by_username(args['username']):
