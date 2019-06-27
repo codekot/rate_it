@@ -154,4 +154,4 @@ class UserLogin(Resource):
             access_token = create_access_token(identity=user.id, fresh=True)
             return {'access_token': access_token}, 200
 
-        return {"message": "Invalid password or username"}
+        return {"message": "Invalid password or username"}, 400
