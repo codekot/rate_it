@@ -129,10 +129,11 @@ class UserRegister(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=non_empty_string, required=True, help="Username field is required")
         parser.add_argument('password', type=str, required=True, help="Password field is required")
+        parser.add_argument('email', type=str, help="Email is used for password reset only")
         args = parser.parse_args()
 
         if UserModel.find_by_username(args['username']):
-            return {"message": "A user with that username already exist"}, 400
+            return {"error": {"username": "A user with that username already exist"}}, 400
 
         user = UserModel(username=args['username'])
         user.set_password(args['password'])
@@ -153,5 +154,7 @@ class UserLogin(Resource):
         if user and user.check_password(args["password"]):
             access_token = create_access_token(identity=user.id, fresh=True)
             return {'access_token': access_token}, 200
+        elif user:
+            return {"error": {"password": "Invalid password"}}, 400
 
-        return {"message": "Invalid password or username"}, 401
+        return {"error": {"username": "Invalid username"}}, 400
