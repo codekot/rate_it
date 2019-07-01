@@ -27,6 +27,10 @@ class ItemList(Resource):
         # Search for substring
         if args['name_substr']:
             items = items.filter(ItemModel.name.contains(args['name_substr']))
+
+        # Get the total count of items
+        total_count = items.count()
+
         if args['sort']:
             is_desc = args['sort'].startswith('-')
             sort_field = args['sort'][1:] if is_desc else args['sort']
@@ -38,7 +42,7 @@ class ItemList(Resource):
         if args['limit']:
             items = items.limit(args['limit'])
         result = [item.json() for item in items]
-        return {'items': result}, 200
+        return {'items': result, 'total_count': total_count}, 200
 
     def post(self):
         parser = reqparse.RequestParser()
