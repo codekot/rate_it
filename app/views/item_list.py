@@ -22,10 +22,11 @@ class ItemList(Resource):
         items = ItemModel.query
         if args['name']:
             items = items.filter_by(name=args['name'])
-        if args['name_substr']:
-            items = items.filter(ItemModel.name.contains(args['name_substr']))
         if args['description']:
             items = items.filter(ItemModel.name.contains(args['description']))
+        # Search for substring
+        if args['name_substr']:
+            items = items.filter(ItemModel.name.contains(args['name_substr']))
         if args['sort']:
             is_desc = args['sort'].startswith('-')
             sort_field = args['sort'][1:] if is_desc else args['sort']
