@@ -3,7 +3,7 @@ from werkzeug.datastructures import FileStorage
 
 from app.gc_bucket import GCBucket
 from app.models import ItemModel
-from app.utils import non_empty_string
+from utils.utils import non_empty_string
 
 
 class ItemList(Resource):
