@@ -20,12 +20,14 @@ def validate_request_json(schema):
                 logger.error("No request JSON found for {}.".format(f.__name__))
                 return {"errors": ["Invalid JSON format"]}, 400
 
-            errors = validate(request.json, schema)
+            json = request.json
+            errors = validate(json, schema)
             if errors:
                 logger.error("Errors found during validation of {}: {}".format(f.__name__, errors))
                 return {'errors': errors}, 400
             logger.debug('Validation for method {} completed, no errors'.format(f.__name__))
 
+            args = args + (json,)
             return f(*args, **kwargs)
 
         return wrapper
