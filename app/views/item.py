@@ -4,24 +4,23 @@ from werkzeug.datastructures import FileStorage
 
 from app.gc_bucket import GCBucket
 from app.models import ItemModel
+from utils.identify_user import identify_user
 from utils.utils import non_empty_string
 
 
 class Item(Resource):
     @jwt_required
-    def get(self, item_id):
-        item = ItemModel.find_by_id(item_id)
+    @identify_user
+    def get(self, item_id, current_user):
+        item = ItemModel.find_by_id(item_id, user_id=current_user.id)
         if not item:
             return {"message": "Item not found"}, 404
 
         return item.json()
 
     @jwt_required
-    def put(self, item_id):
-        item = ItemModel.find_by_id(item_id)
-        if not item:
-            return {"message": "Item not found"}, 404
-
+    @identify_user
+    def put(self, item_id, current_user):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=non_empty_string, location='form',
                             help="Name of the item (must be a non-empty string)")
@@ -31,6 +30,10 @@ class Item(Resource):
         parser.add_argument('delete_image', type=bool, location='form')
         args = parser.parse_args()
         args = {key: value for key, value in args.items() if value or key=='description'}
+
+        item = ItemModel.find_by_id(item_id, user_id=current_user.id)
+        if not item:
+            return {"message": "Item not found"}, 404
 
         if args.pop('delete_image', None):
             item.delete_image()
@@ -43,8 +46,9 @@ class Item(Resource):
         return item.json(), 200
 
     @jwt_required
-    def delete(self, item_id):
-        item = ItemModel.find_by_id(item_id)
+    @identify_user
+    def delete(self, item_id, current_user):
+        item = ItemModel.find_by_id(item_id, user_id=current_user.id)
         if not item:
             return {"message": "Item not found"}, 404
 

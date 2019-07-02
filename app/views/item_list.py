@@ -4,13 +4,15 @@ from werkzeug.datastructures import FileStorage
 
 from app.gc_bucket import GCBucket
 from app.models import ItemModel
+from utils.identify_user import identify_user
 from utils.utils import non_empty_string
 
 
 class ItemList(Resource):
 
     @jwt_required
-    def get(self):
+    @identify_user
+    def get(self, current_user):
         parser = reqparse.RequestParser()
         parser.add_argument('offset', type=int, default=0)
         parser.add_argument('limit', type=int, default=10)
@@ -21,7 +23,7 @@ class ItemList(Resource):
                             help="Available sort parameters: rate, -rate, name, -name")
         parser.add_argument('description', type=str)
         args = parser.parse_args()
-        items = ItemModel.query
+        items = ItemModel.query.filter_by(user_id=current_user.id)
         if args['name']:
             items = items.filter_by(name=args['name'])
         if args['description']:
@@ -47,7 +49,8 @@ class ItemList(Resource):
         return {'items': result, 'total_count': total_count}, 200
 
     @jwt_required
-    def post(self):
+    @identify_user
+    def post(self, current_user):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=non_empty_string, required=True, location='form',
                             help="Name of the item is required")
@@ -59,11 +62,11 @@ class ItemList(Resource):
             image_url = GCBucket.save_to_google_cloud(args['image'])
             args["image"]=image_url
 
-        item = ItemModel.find_by_name(args['name'])
+        item = ItemModel.find_by_name(args['name'], user_id=current_user.id)
         if item:
             item.update_fields(rate=item.rate+1, **args)
         else:
-            item = ItemModel(**args)
+            item = ItemModel(**args, user_id=current_user.id)
 
         try:
             item.save()
