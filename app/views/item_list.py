@@ -1,3 +1,4 @@
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse
 from werkzeug.datastructures import FileStorage
 
@@ -8,6 +9,7 @@ from utils.utils import non_empty_string
 
 class ItemList(Resource):
 
+    @jwt_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('offset', type=int, default=0)
@@ -44,6 +46,7 @@ class ItemList(Resource):
         result = [item.json() for item in items]
         return {'items': result, 'total_count': total_count}, 200
 
+    @jwt_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=non_empty_string, required=True, location='form',

@@ -1,3 +1,4 @@
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse
 from werkzeug.datastructures import FileStorage
 
@@ -7,6 +8,7 @@ from utils.utils import non_empty_string
 
 
 class Item(Resource):
+    @jwt_required
     def get(self, item_id):
         item = ItemModel.find_by_id(item_id)
         if not item:
@@ -14,6 +16,7 @@ class Item(Resource):
 
         return item.json()
 
+    @jwt_required
     def put(self, item_id):
         item = ItemModel.find_by_id(item_id)
         if not item:
@@ -39,6 +42,7 @@ class Item(Resource):
         item.update_fields(save=True, **args)
         return item.json(), 200
 
+    @jwt_required
     def delete(self, item_id):
         item = ItemModel.find_by_id(item_id)
         if not item:
