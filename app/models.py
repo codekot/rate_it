@@ -16,6 +16,8 @@ class ItemModel(db.Model):
     last_edit_date = db.Column(db.DateTime(), default=datetime.utcnow)
     image = db.Column(db.String())
     rate = db.Column(db.Integer, default=1)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("UserModel", back_populates="items")
 
     def json(self):
         json = {
@@ -101,6 +103,7 @@ class UserModel(db.Model):
     username = db.Column(db.String(32), nullable=False)
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(120))
+    items = db.relationship("ItemModel")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
