@@ -78,12 +78,12 @@ class ItemModel(db.Model):
         return cls.query.all()
 
     @classmethod
-    def find_by_id(cls, item_id):
-        return cls.query.filter_by(id=item_id).first()
+    def find_by_id(cls, item_id, **kwargs):
+        return cls.query.filter_by(id=item_id, **kwargs).first()
 
     @classmethod
-    def find_by_name(cls, name):
-        return cls.query.filter_by(name=name).first()
+    def find_by_name(cls, name, **kwargs):
+        return cls.query.filter_by(name=name, **kwargs).first()
 
 
 class CategoryModel(db.Model):
