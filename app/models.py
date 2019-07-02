@@ -126,4 +126,4 @@ class UserModel(db.Model):
 
     @classmethod
     def find_by_id(cls, id):
-        return cls.query.filer_by(id=id)
+        return cls.query.filter_by(id=id).first()
