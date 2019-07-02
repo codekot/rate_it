@@ -6,6 +6,8 @@ from app import db
 
 
 class ItemModel(db.Model):
+    __tablename__ = 'item'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False, unique=True)
     category = db.Column(db.String(), default = "movie")
