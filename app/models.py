@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
@@ -99,10 +100,17 @@ class CategoryModel(db.Model):
 class UserModel(db.Model):
     __tablename__ = 'user'
 
+    ITEM_VIEWS = [
+        ('card', 'card'),
+        ('compact', 'compact'),
+        ('minimal', 'minimal'),
+    ]
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False)
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(120))
+    item_view = db.Column(ChoiceType(ITEM_VIEWS), default='card')
     items = db.relationship("ItemModel")
 
     def set_password(self, password):
