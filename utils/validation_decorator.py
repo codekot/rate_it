@@ -27,7 +27,7 @@ def validate_request_json(schema):
                 return {'errors': errors}, 400
             logger.debug('Validation for method {} completed, no errors'.format(f.__name__))
 
-            args = args + (json,)
+            kwargs['json'] = json
             return f(*args, **kwargs)
 
         return wrapper
