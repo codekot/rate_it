@@ -14,7 +14,7 @@ class UserLogin(Resource):
         user = UserModel.find_by_username(args["username"])
 
         if user and user.check_password(args["password"]):
-            access_token = create_access_token(identity=user.id, fresh=True)
+            access_token = create_access_token(identity=user.id, expires_delta=False, fresh=True)
             return {'access_token': access_token}, 200
         elif user:
             return {"error": {"password": "Invalid password"}}, 400
