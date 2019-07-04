@@ -1,0 +1,3 @@
+# Copy this file to .env and define the variables
+CLOUD_STORAGE_BUCKET=my_bucket
+GOOGLE_APPLICATION_CREDENTIALS=path/to/gapp_credentials.json
