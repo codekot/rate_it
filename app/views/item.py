@@ -1,3 +1,5 @@
+import logging
+
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse
 from werkzeug.datastructures import FileStorage
@@ -6,6 +8,8 @@ from app.gc_bucket import GCBucket
 from app.models import ItemModel
 from utils.identify_user import identify_user
 from utils.utils import non_empty_string
+
+logger = logging.getLogger()
 
 
 class Item(Resource):
@@ -39,8 +43,15 @@ class Item(Resource):
             item.delete_image()
 
         if args.get('image'):
-            image_url = GCBucket.save_to_google_cloud(args['image'])
-            args["image"] = image_url
+            try:
+                image_url = GCBucket.save_to_google_cloud(args['image'])
+            except Exception as exc:
+                logger.error("Cannot save image. Exception message: {}".format(str(exc)))
+                image_url = None
+            if image_url:
+                args['image'] = image_url
+            else:
+                args.pop('image', None)
 
         item.update_fields(save=True, **args)
         return item.json(), 200
