@@ -27,6 +27,6 @@ class UserLogin(Resource):
             'user': {
                 'username': user.username,
                 'email': user.email,
-                'item_view': user.item_view,
+                'item_view': user.item_view.value,
             }
         }, 200
