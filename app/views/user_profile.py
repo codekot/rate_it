@@ -34,9 +34,9 @@ class UserProfile(Resource):
     @validate_request_json(PUT_SCHEMA)
     def put(self, current_user, json):
         if json.get("new_password") and not json.get("password"):
-            return {"errors": ["To change password please provide old password."]}, 400
+            return {"errors": {"Password": "Please provide your old password."}}, 400
         elif json.get("new_password") and not current_user.check_password(json["password"]):
-            return {"errors": ["Provided password is incorrect."]}, 400
+            return {"errors": {"Password": "Password is incorrect."}}, 400
 
         if json.get("new_password"):
             current_user.set_password(json["new_password"])
