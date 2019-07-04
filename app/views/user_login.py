@@ -11,12 +11,22 @@ class UserLogin(Resource):
         parser.add_argument('password', type=str, required=True, help="Password field is required")
         args = parser.parse_args()
 
+        # Get user
         user = UserModel.find_by_username(args["username"])
+        if not user:
+            return {"error": {"username": "Invalid username"}}, 400
 
-        if user and user.check_password(args["password"]):
-            access_token = create_access_token(identity=user.id, expires_delta=False, fresh=True)
-            return {'access_token': access_token}, 200
-        elif user:
+        # Check password
+        if not user.check_password(args["password"]):
             return {"error": {"password": "Invalid password"}}, 400
 
-        return {"error": {"username": "Invalid username"}}, 400
+        # Create token
+        access_token = create_access_token(identity=user.id, expires_delta=False, fresh=True)
+        return {
+            'access_token': access_token,
+            'user': {
+                'username': user.username,
+                'email': user.email,
+                'item_view': user.item_view,
+            }
+        }, 200
