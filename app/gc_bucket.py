@@ -3,6 +3,7 @@ import os
 from uuid import uuid4
 
 from dotenv import load_dotenv
+from google.api_core.exceptions import NotFound as BucketNotFound
 from google.auth.exceptions import DefaultCredentialsError
 from google.cloud import storage
 
@@ -23,7 +24,12 @@ class GCBucket():
             return None
 
         # Get the bucket that the file will uploaded to.
-        bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+        try:
+            bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+        except BucketNotFound as exc:
+            logger.error("Bucket {} not found. Image will not be saved. Exception message: {}"
+                           "".format(CLOUD_STORAGE_BUCKET, str(exc)))
+            return None
 
         # Change filename to unique
         filename = uuid4().hex
