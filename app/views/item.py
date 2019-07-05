@@ -33,7 +33,7 @@ class Item(Resource):
         parser.add_argument('image', type=FileStorage, location='files')
         parser.add_argument('delete_image', type=bool, location='form')
         args = parser.parse_args()
-        args = {key: value for key, value in args.items() if value or key=='description'}
+        args = {key: value for key, value in args.items() if value is not None}
 
         item = ItemModel.find_by_id(item_id, user_id=current_user.id)
         if not item:
