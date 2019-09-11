@@ -19,7 +19,7 @@ class UserRegister(Resource):
     @validate_request_json(SCHEMA)
     def post(self, json):
         if UserModel.find_by_username(json['username']):
-            return {"error": {"username": "A user with that username already exist"}}, 400
+            return {"errors": {"username": "A user with that username already exist"}}, 400
 
         user = UserModel(username=json['username'])
         user.set_password(json['password'])
