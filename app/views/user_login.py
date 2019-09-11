@@ -14,11 +14,11 @@ class UserLogin(Resource):
         # Get user
         user = UserModel.find_by_username(args["username"])
         if not user:
-            return {"error": {"username": "Invalid username"}}, 400
+            return {"errors": {"username": "Invalid username"}}, 400
 
         # Check password
         if not user.check_password(args["password"]):
-            return {"error": {"password": "Invalid password"}}, 400
+            return {"errors": {"password": "Invalid password"}}, 400
 
         # Create token
         access_token = create_access_token(identity=user.id, expires_delta=False, fresh=True)
