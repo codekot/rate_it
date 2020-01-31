@@ -12,3 +12,9 @@ services:
             - "./data.db:/usr/src/app/data.db"
         ports:
             - "8080:5000"
+        restart: always
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "1m"
+                max-file: "3"
