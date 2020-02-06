@@ -1,12 +1,13 @@
 import logging
 
-from utils.jwt_required import jwt_required
 from flask_restful import Resource, reqparse
+from six import string_types
 from werkzeug.datastructures import FileStorage
 
 from app.gc_bucket import GCBucket
 from app.models import ItemModel
 from utils.identify_user import identify_user
+from utils.jwt_required import jwt_required
 from utils.utils import non_empty_string
 
 logger = logging.getLogger()
@@ -62,7 +63,9 @@ class ItemList(Resource):
         parser.add_argument('image', type=FileStorage, location='files')
         args = parser.parse_args()
 
-        if args['image']:
+        if not args['image']:
+            args.pop('image', None)
+        elif not isinstance(args['image'], string_types):
             try:
                 image_url = GCBucket.save_to_google_cloud(args['image'])
             except Exception as exc:
