@@ -57,7 +57,7 @@ class ItemModel(db.Model):
 
     def delete_image(self):
         self.image = None
-        # надо искать в bucket картинку и удалять
+        # TODO: надо искать в bucket картинку и удалять
 
     def update_last_edit_date(self):
         self.last_edit_date = datetime.utcnow()
