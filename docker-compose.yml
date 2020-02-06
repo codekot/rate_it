@@ -4,11 +4,12 @@ services:
 
 ### App Container ######################################
 
-    rate_app:
-        container_name: rate_app
+    api:
         build:
-            context: .
+            context: ./docker/api
+            dockerfile: Dockerfile
         volumes:
+            - .:/usr/src/app
             - "./data.db:/usr/src/app/data.db"
         ports:
             - "8080:5000"
