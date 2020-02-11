@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 
 from config import Config
-from sqlalchemy_extras.custom_query import CustomQuery
+from utils.sqlalchemy_extras.custom_query import CustomQuery
 
 naming_convention = {
     "ix": 'ix_%(column_0_label)s',
