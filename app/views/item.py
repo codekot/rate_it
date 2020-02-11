@@ -6,9 +6,9 @@ from werkzeug.datastructures import FileStorage
 
 from app.gc_bucket import GCBucket
 from app.models import ItemModel
-from utils.identify_user import identify_user
-from utils.jwt_required import jwt_required
-from utils.utils import non_empty_string
+from common.identify_user import identify_user
+from common.jwt_required import jwt_required
+from common.utils import non_empty_string
 
 logger = logging.getLogger()
 

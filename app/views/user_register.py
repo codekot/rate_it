@@ -1,8 +1,8 @@
 from flask_restful import Resource
 
 from app.models import UserModel
-from utils.jsonschema_patterns import nonempty_string, email_type
-from utils.validation_decorator import validate_request_json
+from common.jsonschema_patterns import nonempty_string, email_type
+from common.validation_decorator import validate_request_json
 
 SCHEMA = {
     "type": "object",

@@ -1,10 +1,10 @@
 from flask_restful import Resource
 
 from app.models import UserModel
-from utils.identify_user import identify_user
-from utils.jsonschema_patterns import nonempty_string, email_type
-from utils.jwt_required import jwt_required
-from utils.validation_decorator import validate_request_json
+from common.identify_user import identify_user
+from common.jsonschema_patterns import nonempty_string, email_type
+from common.jwt_required import jwt_required
+from common.validation_decorator import validate_request_json
 
 PUT_SCHEMA = {
     "type": "object",

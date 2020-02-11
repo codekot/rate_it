@@ -4,7 +4,7 @@ import logging
 from functools import wraps
 from flask import request
 
-from utils.jsonschema_patterns import validate
+from common.jsonschema_patterns import validate
 
 logger = logging.getLogger()
 
