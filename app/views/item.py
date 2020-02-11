@@ -43,7 +43,7 @@ class Item(Resource):
         if args.pop('delete_image', None):
             item.delete_image()
 
-        if not args['image']:
+        if not args.get('image'):
             args.pop('image', None)
         elif not isinstance(args['image'], string_types):
             try:
