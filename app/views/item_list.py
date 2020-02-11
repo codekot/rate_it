@@ -32,10 +32,10 @@ class ItemList(Resource):
         if args['name']:
             items = items.filter_by(name=args['name'])
         if args['description']:
-            items = items.filter(ItemModel.name.contains(args['description']))
+            items = items.filter_by(description__icontains=args['description'])
         # Search for substring
         if args['name_substr']:
-            items = items.filter(ItemModel.name.contains(args['name_substr']))
+            items = items.filter_by(name__icontains=args["name_substr"])
 
         # Get the total count of items
         total_count = items.count()
